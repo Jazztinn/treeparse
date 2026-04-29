@@ -1,0 +1,29 @@
+{
+  "name": "treeparse",
+  "version": "1.0.0",
+  "description": "for easy-visualization of any sentence's grammatical structure as an interactive syntax tree.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jazztinn/treeparse.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jazztinn/treeparse/issues"
+  },
+  "homepage": "https://github.com/Jazztinn/treeparse#readme",
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.0.0"
+  }
+}
