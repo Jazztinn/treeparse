@@ -12,9 +12,13 @@ export default function TreeParse() {
   const getCurrentNode = () => {
     let node = tree;
     for (let idx of currentPath) {
-      if (node.children && node.children[idx]) {
-        node = node.children[idx];
+      if (!node.children || !Array.isArray(node.children) || !node.children[idx]) {
+        return { label: '', children: [] };
       }
+      node = node.children[idx];
+    }
+    if (!node.children || !Array.isArray(node.children)) {
+      node.children = [];
     }
     return node;
   };
@@ -29,9 +33,12 @@ export default function TreeParse() {
         const deepCopy = JSON.parse(JSON.stringify(prevTree));
         let node = deepCopy;
         for (let idx of currentPath) {
+          if (!node.children || !Array.isArray(node.children)) {
+            node.children = [];
+          }
           node = node.children[idx];
         }
-        if (!node.children) node.children = [];
+        if (!node.children || !Array.isArray(node.children)) node.children = [];
         node.children.push(newNode);
         return deepCopy;
       });
