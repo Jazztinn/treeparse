@@ -5,7 +5,7 @@ export default function BracketView({ node, depth = 0 }) {
   return (
     <span style={{ fontFamily: 'monospace', fontSize: '14px' }}>
       [<span style={{ color: 'var(--color-text-info)' }}>{node.label}</span>
-      {node.children && node.children.length > 0 && (
+      {Array.isArray(node.children) && node.children.length > 0 && (
         <>
           {node.children.map((child, idx) => (
             <BracketView key={idx} node={child} depth={depth + 1} />

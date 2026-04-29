@@ -20,7 +20,7 @@ export default function BubbleView({ node, depth = 0 }) {
       >
         {node.label}
       </div>
-      {node.children && node.children.length > 0 && (
+      {Array.isArray(node.children) && node.children.length > 0 && (
         <div style={{ marginTop: '12px', borderLeft: '2px solid var(--color-border-tertiary)', paddingLeft: '16px' }}>
           {node.children.map((child, idx) => (
             <BubbleView key={idx} node={child} depth={depth + 1} />
