@@ -1,7 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './FloatingMenu.module.css';
 
-const RADIUS = 90;
+function useOrbitRadius() {
+  const [radius, setRadius] = useState(() => (typeof window !== 'undefined' && window.innerWidth <= 560 ? 70 : 90));
+  useEffect(() => {
+    const update = () => setRadius(window.innerWidth <= 560 ? 70 : 90);
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  return radius;
+}
 
 const ICONS = {
   plus: (
@@ -57,6 +65,7 @@ const MENU_ITEMS = [
 
 export default function FloatingMenu({ activeTools, onToggle }) {
   const [open, setOpen] = useState(false);
+  const RADIUS = useOrbitRadius();
 
   return (
     <div className={styles.container}>
