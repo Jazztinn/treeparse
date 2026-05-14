@@ -26,6 +26,7 @@ export default function App() {
   const [examples, setExamples] = useState([]);
   const [ambiguityData, setAmbiguityData] = useState(null);
   const [showExamples, setShowExamples] = useState(true);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(true);
 
   // Tool state
   const [activeTools, setActiveTools] = useState({
@@ -187,35 +188,47 @@ export default function App() {
         </div>
 
         <div className={styles.treeArea}>
-          {showExamples && (
-            <div className={styles.examplesOverlay}>
-              <ExamplesLibrary
-                examples={examples}
-                onLoadExample={(t) => { loadTree(t); setCustomPositions({}); setPenPaths([]); }}
-                onAIParse={handleAIParse}
-                onClose={() => setShowExamples(false)}
-              />
+          <div className={`${styles.paletteContainer} ${isPaletteOpen ? styles.open : styles.closed}`}>
+            <button 
+              className={styles.paletteToggle} 
+              onClick={() => setIsPaletteOpen(!isPaletteOpen)}
+              title={isPaletteOpen ? "Collapse Palette" : "Expand Palette"}
+            >
+              {isPaletteOpen ? '◀' : '▶'}
+            </button>
+            <div className={styles.paletteContent}>
+              <NodePalette />
             </div>
-          )}
-          <div className={styles.paletteOverlay}>
-            <NodePalette />
           </div>
-          <TreeVisualizer
-            tree={tree}
-            selectedNodeId={selectedNodeId}
-            onNodeClick={setSelectedNodeId}
-            onDropNode={handleDropNode}
-            unlocked={activeTools.unlock}
-            penMode={activeTools.pen}
-            annotateMode={activeTools.annotate}
-            theme={getTheme(THEMES[themeIndex].id)}
-            customPositions={customPositions}
-            onPositionChange={handlePositionChange}
-            penPaths={penPaths}
-            onPenPathsChange={setPenPaths}
-            onAnnotate={handleAnnotate}
-            floatingMenu={<FloatingMenu activeTools={activeTools} onToggle={handleToggleTool} />}
-          />
+
+          <div className={styles.visualizerWrapper}>
+            {showExamples && (
+              <div className={styles.examplesOverlay}>
+                <ExamplesLibrary
+                  examples={examples}
+                  onLoadExample={(t) => { loadTree(t); setCustomPositions({}); setPenPaths([]); }}
+                  onAIParse={handleAIParse}
+                  onClose={() => setShowExamples(false)}
+                />
+              </div>
+            )}
+            <TreeVisualizer
+              tree={tree}
+              selectedNodeId={selectedNodeId}
+              onNodeClick={setSelectedNodeId}
+              onDropNode={handleDropNode}
+              unlocked={activeTools.unlock}
+              penMode={activeTools.pen}
+              annotateMode={activeTools.annotate}
+              theme={getTheme(THEMES[themeIndex].id)}
+              customPositions={customPositions}
+              onPositionChange={handlePositionChange}
+              penPaths={penPaths}
+              onPenPathsChange={setPenPaths}
+              onAnnotate={handleAnnotate}
+              floatingMenu={<FloatingMenu activeTools={activeTools} onToggle={handleToggleTool} />}
+            />
+          </div>
         </div>
 
         <div className={styles.sidebar}>

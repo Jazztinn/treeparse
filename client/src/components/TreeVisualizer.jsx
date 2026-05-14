@@ -200,6 +200,7 @@ export default function TreeVisualizer({
   const [penDrafting, setPenDrafting] = useState(null);
   const [overlaySize, setOverlaySize] = useState({ w: 0, h: 0 });
   const [hoverNode, setHoverNode] = useState(null);
+  const [scale, setScale] = useState(1);
 
   const wrapperRef = useRef(null);
   const dragRef = useRef(null);
@@ -238,8 +239,8 @@ export default function TreeVisualizer({
 
     function onMove(ev) {
       if (!dragRef.current) return;
-      const dx = ev.clientX - dragRef.current.startClientX;
-      const dy = ev.clientY - dragRef.current.startClientY;
+      const dx = (ev.clientX - dragRef.current.startClientX) / scale;
+      const dy = (ev.clientY - dragRef.current.startClientY) / scale;
       onPositionChange(dragRef.current.nodeId, {
         x: dragRef.current.startPos.x + dx,
         y: dragRef.current.startPos.y + dy,
@@ -392,41 +393,49 @@ export default function TreeVisualizer({
         </button>
       )}
 
+      <div className={styles.zoomControls}>
+        <button className={styles.zoomBtn} onClick={() => setScale(s => Math.max(0.2, s - 0.1))} title="Zoom Out">−</button>
+        <button className={styles.zoomBtn} onClick={() => setScale(1)} title="Reset Zoom" style={{ fontSize: '11px', width: 'auto', padding: '0 8px' }}>{(scale * 100).toFixed(0)}%</button>
+        <button className={styles.zoomBtn} onClick={() => setScale(s => Math.min(3, s + 0.1))} title="Zoom In">+</button>
+      </div>
+
       <div className={styles.scroll}>
         <svg
           id="tree-svg"
           className={styles.svg}
-          width={svgWidth}
-          height={svgHeight}
+          width={svgWidth * scale}
+          height={svgHeight * scale}
         >
-          {collectEdges(tree, autoPositions, customPositions).map(e =>
-            e.type === 'triangle'
-              ? <polygon key={e.key} className={styles.triangleEdge} points={e.points} />
-              : <line key={e.key} className={styles.edge} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
-          )}
-          {allNodes.map(n => {
-            const pos = getEffectivePos(n, autoPositions, customPositions);
-            if (!pos) return null;
-            const isLeaf = n.word !== null && n.word !== undefined && n.word !== '';
-            return (
-              <NodeShape
-                key={n.id}
-                node={n}
-                pos={pos}
-                isLeaf={isLeaf}
-                isSelected={n.id === selectedNodeId}
-                isDropTarget={n.id === dropTargetId}
-                unlocked={unlocked}
-                annotateMode={annotateMode}
-                onClick={onNodeClick}
-                onDropOnNode={onDropNode}
-                onDragMoveStart={handleNodeDragStart}
-                onAnnotate={onAnnotate}
-                setDropTargetId={setDropTargetId}
-                setHoverNode={setHoverNode}
-              />
-            );
-          })}
+          <g transform={`scale(${scale})`}>
+            {collectEdges(tree, autoPositions, customPositions).map(e =>
+              e.type === 'triangle'
+                ? <polygon key={e.key} className={styles.triangleEdge} points={e.points} />
+                : <line key={e.key} className={styles.edge} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
+            )}
+            {allNodes.map(n => {
+              const pos = getEffectivePos(n, autoPositions, customPositions);
+              if (!pos) return null;
+              const isLeaf = n.word !== null && n.word !== undefined && n.word !== '';
+              return (
+                <NodeShape
+                  key={n.id}
+                  node={n}
+                  pos={pos}
+                  isLeaf={isLeaf}
+                  isSelected={n.id === selectedNodeId}
+                  isDropTarget={n.id === dropTargetId}
+                  unlocked={unlocked}
+                  annotateMode={annotateMode}
+                  onClick={onNodeClick}
+                  onDropOnNode={onDropNode}
+                  onDragMoveStart={handleNodeDragStart}
+                  onAnnotate={onAnnotate}
+                  setDropTargetId={setDropTargetId}
+                  setHoverNode={setHoverNode}
+                />
+              );
+            })}
+          </g>
         </svg>
       </div>
 

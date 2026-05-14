@@ -86,10 +86,11 @@
 .treeArea {
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 12px;
   min-height: 0;
   z-index: 5;
+  align-items: stretch;
 }
 
 .sidebar {
@@ -148,17 +149,68 @@
   }
 }
 
-.paletteOverlay {
-  position: absolute;
-  top: 16px;
-  right: 16px;
+.paletteContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.paletteContainer.open {
   width: 240px;
-  z-index: 20;
-  pointer-events: auto;
-  max-height: calc(100% - 32px);
+}
+
+.paletteContainer.closed {
+  width: 0;
+}
+
+.paletteContent {
+  width: 240px;
+  max-height: calc(100vh - 120px);
   overflow-y: auto;
   scrollbar-width: none;
+  opacity: 1;
+  transition: opacity 0.2s;
 }
-.paletteOverlay::-webkit-scrollbar {
+
+.paletteContent::-webkit-scrollbar {
   display: none;
+}
+
+.paletteContainer.closed .paletteContent {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.paletteToggle {
+  position: absolute;
+  top: 16px;
+  right: -16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  color: #555;
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+
+.paletteToggle:hover {
+  background: #f8fafc;
+  color: #ea580c;
+}
+
+.visualizerWrapper {
+  flex: 1;
+  min-width: 0; /* allows flex item to shrink below content size if needed */
+  display: flex;
+  flex-direction: column;
 }
