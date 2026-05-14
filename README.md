@@ -7,7 +7,12 @@ Live demo: https://treeparse-ten.vercel.app
 Dedicated to my girlfriend, Ace.
 
 Watch it in action:
-[![Video Thumbnail](https://www.youtube.com/watch?v=gy6jnfXovTc)](https://www.youtube.com/watch?v=gy6jnfXovTc)
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=gy6jnfXovTc">
+    <img src="https://img.youtube.com/vi/gy6jnfXovTc/0.jpg" alt="TreeParse Demo" style="width:100%;">
+  </a>
+</div>
+
 ## Features
 
 - Render phrase-structure trees as SVG with automatic hierarchical layout
