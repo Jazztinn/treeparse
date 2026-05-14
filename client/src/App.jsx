@@ -25,7 +25,7 @@ export default function App() {
   const { loading, error, aiParse, fetchExamples } = useAPICall();
   const [examples, setExamples] = useState([]);
   const [ambiguityData, setAmbiguityData] = useState(null);
-  const [showExamples, setShowExamples] = useState(true);
+  const [showExamples, setShowExamples] = useState(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(true);
 
   // Tool state
