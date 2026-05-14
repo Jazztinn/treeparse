@@ -41,6 +41,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (tree && (!tree.children || tree.children.length === 0)) {
+      if (selectedNodeId !== tree.id) {
+        setSelectedNodeId(tree.id);
+      }
+    }
+  }, [tree, selectedNodeId, setSelectedNodeId]);
+
+  useEffect(() => {
     function handleKey(e) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
       if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
@@ -73,10 +81,12 @@ export default function App() {
     if (payload.special) {
       const auxWord = payload.special === 'perf' ? 'have' : 'be';
       const conjugate = payload.special === 'prog' ? toIngForm : toPastParticiple;
+      let aspectNodeIdToSelect = null;
 
       transformTree((prev, { generateId }) => {
         const aspectLeafId = generateId();
         const aspectNodeId = generateId();
+        aspectNodeIdToSelect = aspectNodeId;
         const aspectNode = {
           id: aspectNodeId,
           type: payload.type,
@@ -109,6 +119,9 @@ export default function App() {
         }
         return conjugateWalk(withAspect);
       });
+      if (aspectNodeIdToSelect) {
+        setSelectedNodeId(aspectNodeIdToSelect);
+      }
       return;
     }
 

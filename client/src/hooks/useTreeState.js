@@ -20,9 +20,10 @@ export function useTreeState() {
   }, [pushHistory]);
 
   const addChild = useCallback((parentId, nodeData) => {
+    const newNodeId = generateId();
     setTree(prev => {
       const newNode = {
-        id: generateId(),
+        id: newNodeId,
         type: nodeData?.type || 'N',
         label: nodeData?.label || 'Node',
         word: nodeData?.word || null,
@@ -32,18 +33,20 @@ export function useTreeState() {
       pushHistory(prev);
       return next;
     });
+    setSelectedNodeId(newNodeId);
   }, [pushHistory]);
 
   const createRoot = useCallback((nodeData) => {
     pushHistory(tree);
+    const rootId = generateId();
     setTree({
-      id: generateId(),
+      id: rootId,
       type: nodeData?.type || 'S',
       label: nodeData?.label || 'Sentence',
       word: nodeData?.word || null,
       children: [],
     });
-    setSelectedNodeId(null);
+    setSelectedNodeId(rootId);
   }, [tree, pushHistory]);
 
   const deleteSelectedNode = useCallback((nodeId) => {
@@ -86,13 +89,18 @@ export function useTreeState() {
   const loadTree = useCallback((newTree) => {
     pushHistory(tree);
     setTree(newTree);
-    setSelectedNodeId(null);
+    if (newTree && (!newTree.children || newTree.children.length === 0)) {
+      setSelectedNodeId(newTree.id);
+    } else {
+      setSelectedNodeId(null);
+    }
   }, [tree, pushHistory]);
 
   const newTree = useCallback(() => {
     pushHistory(tree);
-    setTree(makeEmptyTree());
-    setSelectedNodeId(null);
+    const empty = makeEmptyTree();
+    setTree(empty);
+    setSelectedNodeId(empty.id);
   }, [tree, pushHistory]);
 
   const clearTree = useCallback(() => {
