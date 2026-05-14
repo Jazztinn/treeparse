@@ -26,7 +26,7 @@ export default function App() {
   const [examples, setExamples] = useState([]);
   const [ambiguityData, setAmbiguityData] = useState(null);
   const [showExamples, setShowExamples] = useState(false);
-  const [isPaletteOpen, setIsPaletteOpen] = useState(true);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth > 560);
 
   // Tool state
   const [activeTools, setActiveTools] = useState({
@@ -35,6 +35,18 @@ export default function App() {
   const [themeIndex, setThemeIndex] = useState(0);
   const [customPositions, setCustomPositions] = useState({});
   const [penPaths, setPenPaths] = useState([]);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth <= 560) {
+        setIsPaletteOpen(false);
+      } else {
+        setIsPaletteOpen(true);
+      }
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     fetchExamples().then(setExamples);

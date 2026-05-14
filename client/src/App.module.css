@@ -151,6 +151,9 @@
     height: 440px;
     opacity: 0.18;
   }
+  .paletteToggle {
+    display: none;
+  }
 }
 
 .paletteContainer {
