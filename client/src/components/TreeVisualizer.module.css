@@ -165,8 +165,8 @@
 
 .clearBtn {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  bottom: 16px;
+  right: 16px;
   z-index: 6;
   padding: 6px 12px;
   border-radius: 10px;

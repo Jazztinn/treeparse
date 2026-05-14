@@ -147,3 +147,18 @@
     opacity: 0.18;
   }
 }
+
+.paletteOverlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 240px;
+  z-index: 20;
+  pointer-events: auto;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.paletteOverlay::-webkit-scrollbar {
+  display: none;
+}

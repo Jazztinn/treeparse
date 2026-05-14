@@ -197,6 +197,9 @@ export default function App() {
               />
             </div>
           )}
+          <div className={styles.paletteOverlay}>
+            <NodePalette />
+          </div>
           <TreeVisualizer
             tree={tree}
             selectedNodeId={selectedNodeId}
@@ -223,7 +226,6 @@ export default function App() {
             onDelete={deleteNode}
             onUpdate={updateNode}
           />
-          <NodePalette />
         </div>
       </main>
 
