@@ -23,6 +23,7 @@ export default function App() {
   const { loading, error, aiParse, fetchExamples } = useAPICall();
   const [examples, setExamples] = useState([]);
   const [ambiguityData, setAmbiguityData] = useState(null);
+  const [showExamples, setShowExamples] = useState(true);
 
   // Tool state
   const [activeTools, setActiveTools] = useState({
@@ -112,11 +113,7 @@ export default function App() {
     <div className={styles.app}>
       <header className={styles.header}>
         <span className={styles.logo}>
-          Tree<span className={styles.logoAccent}>Parse</span>
-        </span>
-        <span className={styles.subtitle}>Interactive Syntax Tree Visualizer</span>
-        <span style={{ marginLeft: 'auto', fontSize: '0.78rem', color: '#888' }}>
-          Theme: {THEMES[themeIndex].name}
+          tree<span className={styles.logoAccent}>parse</span>
         </span>
       </header>
 
@@ -130,10 +127,21 @@ export default function App() {
             onRedo={redo}
             canUndo={canUndo}
             canRedo={canRedo}
+            onShowExamples={() => setShowExamples(true)}
           />
         </div>
 
         <div className={styles.treeArea}>
+          {showExamples && (
+            <div className={styles.examplesOverlay}>
+              <ExamplesLibrary
+                examples={examples}
+                onLoadExample={(t) => { loadTree(t); setCustomPositions({}); setPenPaths([]); }}
+                onAIParse={handleAIParse}
+                onClose={() => setShowExamples(false)}
+              />
+            </div>
+          )}
           <TreeVisualizer
             tree={tree}
             selectedNodeId={selectedNodeId}
@@ -161,11 +169,6 @@ export default function App() {
             onUpdate={updateNode}
           />
           <NodePalette />
-          <ExamplesLibrary
-            examples={examples}
-            onLoadExample={(t) => { loadTree(t); setCustomPositions({}); setPenPaths([]); }}
-            onAIParse={handleAIParse}
-          />
         </div>
       </main>
 

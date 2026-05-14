@@ -1,17 +1,13 @@
-import { treeToJSON } from '../utils/treeUtils';
+import { exportSvgAsPng } from '../utils/exportPNG';
 import styles from './ControlBar.module.css';
 
-export default function ControlBar({ tree, onNewTree, onUndo, onRedo, canUndo, canRedo }) {
-  function handleExportJSON() {
+export default function ControlBar({ tree, onNewTree, onUndo, onRedo, canUndo, canRedo, onShowExamples }) {
+  function handleExportPNG() {
     if (!tree) return;
-    const json = treeToJSON(tree);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'syntax-tree.json';
-    a.click();
-    URL.revokeObjectURL(url);
+    const svgEl = document.getElementById('tree-svg');
+    if (svgEl) {
+      exportSvgAsPng(svgEl, 'syntax-tree.png');
+    }
   }
 
   return (
@@ -27,8 +23,11 @@ export default function ControlBar({ tree, onNewTree, onUndo, onRedo, canUndo, c
         ↪ Redo
       </button>
       <div className={styles.separator} />
-      <button className={styles.btn} onClick={handleExportJSON} disabled={!tree}>
-        ↓ Export JSON
+      <button className={styles.btn} onClick={onShowExamples}>
+        📖 Examples
+      </button>
+      <button className={styles.btn} onClick={handleExportPNG} disabled={!tree}>
+        ↓ Export PNG
       </button>
     </div>
   );

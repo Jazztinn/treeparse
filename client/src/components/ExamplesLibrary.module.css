@@ -12,6 +12,29 @@
     inset -1px -1px 3px rgba(15, 23, 42, 0.08);
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 1rem;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.closeBtn:hover {
+  background: rgba(15, 23, 42, 0.05);
+  color: #1a1a1a;
+}
+
 .title {
   font-size: 0.78rem;
   font-weight: 700;

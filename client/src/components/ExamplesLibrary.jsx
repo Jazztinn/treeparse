@@ -1,6 +1,6 @@
 import styles from './ExamplesLibrary.module.css';
 
-export default function ExamplesLibrary({ examples, onLoadExample, onAIParse }) {
+export default function ExamplesLibrary({ examples, onLoadExample, onAIParse, onClose }) {
   function handleClick(ex) {
     if (ex.tree) {
       onLoadExample(ex.tree);
@@ -11,7 +11,10 @@ export default function ExamplesLibrary({ examples, onLoadExample, onAIParse }) 
 
   return (
     <div className={styles.panel}>
-      <p className={styles.title}>Examples</p>
+      <div className={styles.header}>
+        <p className={styles.title}>Examples</p>
+        <button className={styles.closeBtn} onClick={onClose} aria-label="Close examples">✕</button>
+      </div>
       <div className={styles.list}>
         {examples.map(ex => (
           <div key={ex.id} className={styles.item} onClick={() => handleClick(ex)}>

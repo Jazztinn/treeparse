@@ -352,6 +352,7 @@ export default function TreeVisualizer({
 
       <div className={styles.scroll}>
         <svg
+          id="tree-svg"
           className={styles.svg}
           width={svgWidth}
           height={svgHeight}

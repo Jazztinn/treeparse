@@ -17,23 +17,20 @@
 }
 
 .logo {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #1a1a1a;
-  font-family: 'Georgia', serif;
+  font-family: 'Borel', cursive, 'Georgia', serif;
   letter-spacing: -0.02em;
+  text-transform: lowercase;
 }
 
 .logoAccent {
   color: #1a73e8;
 }
 
-.subtitle {
-  font-size: 0.82rem;
-  color: #888;
-}
-
 .main {
+  position: relative;
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 260px;
@@ -46,22 +43,35 @@
   box-sizing: border-box;
 }
 
+.examplesOverlay {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 320px;
+  z-index: 20;
+  pointer-events: auto;
+}
+
 .topRow {
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  z-index: 10;
 }
 
 .treeArea {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
   min-height: 0;
+  z-index: 5;
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  z-index: 10;
 }
