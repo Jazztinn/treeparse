@@ -10,6 +10,12 @@ const ICONS = {
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   ),
+  close: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="6" y1="6" x2="18" y2="18" />
+      <line x1="18" y1="6" x2="6" y2="18" />
+    </svg>
+  ),
   unlock: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="11" width="18" height="11" rx="2" />
@@ -79,11 +85,11 @@ export default function FloatingMenu({ activeTools, onToggle }) {
       })}
 
       <div
-        className={`${styles.center} ${open ? styles.open : ''}`}
+        className={styles.center}
         onClick={() => setOpen(o => !o)}
         title={open ? 'Close menu' : 'Open menu'}
       >
-        <div className={styles.centerIcon}>{ICONS.plus}</div>
+        <div className={styles.centerIcon}>{open ? ICONS.close : ICONS.plus}</div>
       </div>
     </div>
   );
