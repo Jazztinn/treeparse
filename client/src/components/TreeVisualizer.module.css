@@ -1,0 +1,77 @@
+.wrapper {
+  width: 100%;
+  overflow: auto;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  min-height: 300px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 300px;
+  color: #aaa;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.svg {
+  display: block;
+}
+
+.edge {
+  stroke: #999;
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.node {
+  cursor: pointer;
+}
+
+.nodeCircle {
+  fill: #fff;
+  stroke: #555;
+  stroke-width: 1.5;
+  rx: 6;
+  ry: 6;
+  transition: fill 0.15s, stroke 0.15s;
+}
+
+.nodeCircle.selected {
+  fill: #e8f0fe;
+  stroke: #1a73e8;
+  stroke-width: 2;
+}
+
+.nodeCircle.leaf {
+  fill: #f0fdf4;
+  stroke: #16a34a;
+}
+
+.nodeCircle.leafSelected {
+  fill: #dcfce7;
+  stroke: #15803d;
+  stroke-width: 2;
+}
+
+.nodeType {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #1a1a1a;
+  pointer-events: none;
+  font-family: 'Georgia', serif;
+}
+
+.nodeWord {
+  font-size: 11px;
+  fill: #555;
+  pointer-events: none;
+  font-style: italic;
+}

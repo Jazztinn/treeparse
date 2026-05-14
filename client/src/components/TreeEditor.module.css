@@ -1,0 +1,104 @@
+.panel {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin: 0;
+}
+
+.empty {
+  color: #aaa;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: #1a73e8;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnPrimary {
+  background: #1a73e8;
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: #1557b0;
+}
+
+.btnDanger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btnDanger:hover {
+  background: #b91c1c;
+}
+
+.btnSecondary {
+  background: #f1f3f4;
+  color: #333;
+}
+
+.btnSecondary:hover {
+  background: #e0e0e0;
+}
+
+.nodeInfo {
+  font-size: 0.8rem;
+  color: #888;
+  font-style: italic;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 0;
+}

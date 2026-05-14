@@ -1,0 +1,65 @@
+.app {
+  min-height: 100vh;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  font-family: 'Georgia', serif;
+  letter-spacing: -0.02em;
+}
+
+.logoAccent {
+  color: #1a73e8;
+}
+
+.subtitle {
+  font-size: 0.82rem;
+  color: #888;
+}
+
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  padding: 16px 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.topRow {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.treeArea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

@@ -1,0 +1,25 @@
+{
+  "name": "treeparse",
+  "version": "1.0.0",
+  "description": "for easy-visualization of any sentence's grammatical structure as an interactive syntax tree.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jazztinn/treeparse.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jazztinn/treeparse/issues"
+  },
+  "homepage": "https://github.com/Jazztinn/treeparse#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
