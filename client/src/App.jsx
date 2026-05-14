@@ -204,6 +204,11 @@ export default function App() {
           <ControlBar
             tree={tree}
             onNewTree={() => { newTree(); setCustomPositions({}); setPenPaths([]); }}
+            onAddNode={() => {
+              const payload = { type: 'N', label: 'Node' };
+              if (!tree) createRoot(payload);
+              else addChild(selectedNodeId || tree.id, payload);
+            }}
             onUndo={undo}
             onRedo={redo}
             canUndo={canUndo}

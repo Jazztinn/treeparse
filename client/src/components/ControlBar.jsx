@@ -1,7 +1,7 @@
 import { exportSvgAsPng } from '../utils/exportPNG';
 import styles from './ControlBar.module.css';
 
-export default function ControlBar({ tree, onNewTree, onUndo, onRedo, canUndo, canRedo, onShowExamples }) {
+export default function ControlBar({ tree, onNewTree, onAddNode, onUndo, onRedo, canUndo, canRedo, onShowExamples }) {
   function handleExportPNG() {
     if (!tree) return;
     const svgEl = document.getElementById('tree-svg');
@@ -15,6 +15,9 @@ export default function ControlBar({ tree, onNewTree, onUndo, onRedo, canUndo, c
 
       <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={onNewTree}>
         New Tree
+      </button>
+      <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={onAddNode} title="Add Placeholder Node">
+        + Add Node
       </button>
       <div className={styles.separator} />
       <button className={styles.btn} onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)">
