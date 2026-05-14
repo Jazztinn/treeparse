@@ -190,7 +190,7 @@
 .paletteToggle {
   position: absolute;
   top: 50%;
-  right: -14px;
+  right: -18px;
   transform: translateY(-50%);
   width: 24px;
   height: 64px;
