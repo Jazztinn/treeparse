@@ -58,9 +58,9 @@ function Chip({ node, leaf, aspect }) {
       className={`${styles.chip} ${leaf ? styles.chipLeaf : ''} ${aspect ? styles.chipAspect : ''}`}
       draggable
       onDragStart={handleDragStart}
-      title={node.label}
     >
       {node.type}
+      <span className={styles.tooltip}>{node.label}</span>
     </div>
   );
 }
