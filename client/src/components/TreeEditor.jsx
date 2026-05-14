@@ -66,7 +66,7 @@ export default function TreeEditor({ tree, selectedNodeId, onAddChild, onDelete,
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Full name</label>
+            <label className={styles.label}>Title</label>
             <input
               className={styles.input}
               value={label}
