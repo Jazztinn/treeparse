@@ -306,6 +306,16 @@ export default function TreeVisualizer({
         onDragLeave={handleWrapperDragLeave}
         onDrop={handleWrapperDrop}
       >
+        {hintText && <div className={styles.toolHint}>{hintText}</div>}
+        {penMode && (
+          <button
+            className={styles.clearBtn}
+            onClick={() => onPenPathsChange([])}
+            disabled={penPaths.length === 0}
+          >
+            ✕ Clear Drawing
+          </button>
+        )}
         <div className={styles.scroll}>
           <div className={styles.empty}>
             {wrapperDropActive ? 'Drop to create root node' : 'Parse a sentence, drag a node here, or click New Tree to begin.'}

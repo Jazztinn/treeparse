@@ -12,22 +12,6 @@
     inset -1px -1px 3px rgba(255, 255, 255, 0.7);
 }
 
-.wrapper::before {
-  content: '';
-  position: absolute;
-  left: -40px;
-  bottom: -60px;
-  width: 360px;
-  height: 460px;
-  background-image: url('../assets/sunflower.png');
-  background-repeat: no-repeat;
-  background-position: bottom left;
-  background-size: contain;
-  opacity: 0.35;
-  pointer-events: none;
-  z-index: 0;
-  filter: saturate(0.95);
-}
 
 .scroll {
   width: 100%;
