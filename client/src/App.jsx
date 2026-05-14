@@ -119,7 +119,12 @@ export default function App() {
 
       <main className={styles.main}>
         <div className={styles.topRow}>
-          <InputPanel onAIParse={handleAIParse} loading={loading} error={error} />
+          <InputPanel
+            onAIParse={handleAIParse}
+            onBracketParse={(t) => { loadTree(t); setCustomPositions({}); setPenPaths([]); }}
+            loading={loading}
+            error={error}
+          />
           <ControlBar
             tree={tree}
             onNewTree={() => { newTree(); setCustomPositions({}); setPenPaths([]); }}

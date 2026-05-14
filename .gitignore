@@ -2,5 +2,8 @@ node_modules/
 client/node_modules/
 server/node_modules/
 server/.env
+.env
+.env.local
 client/dist/
+.vercel
 .DS_Store

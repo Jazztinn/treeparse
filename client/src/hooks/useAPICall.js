@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
-const BASE = 'http://localhost:3000/api';
+// In production (Vercel), API and frontend live on the same origin → use a relative path.
+// In dev, fall back to the local Express server.
+const BASE = import.meta.env.DEV ? 'http://localhost:3000/api' : '/api';
 
 export function useAPICall() {
   const [loading, setLoading] = useState(false);

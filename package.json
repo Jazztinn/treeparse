@@ -1,5 +1,6 @@
 {
   "name": "treeparse",
+  "type": "module",
   "version": "1.0.0",
   "description": "for easy-visualization of any sentence's grammatical structure as an interactive syntax tree.",
   "main": "index.js",
@@ -21,5 +22,8 @@
   "homepage": "https://github.com/Jazztinn/treeparse#readme",
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1"
   }
 }

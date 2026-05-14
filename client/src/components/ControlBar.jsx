@@ -12,6 +12,7 @@ export default function ControlBar({ tree, onNewTree, onUndo, onRedo, canUndo, c
 
   return (
     <div className={styles.bar}>
+
       <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={onNewTree}>
         New Tree
       </button>
@@ -22,13 +23,16 @@ export default function ControlBar({ tree, onNewTree, onUndo, onRedo, canUndo, c
       <button className={styles.btn} onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)">
         ↪ Redo
       </button>
-      <div className={styles.separator} />
-      <button className={styles.btn} onClick={onShowExamples}>
-        📖 Examples
-      </button>
+
       <button className={styles.btn} onClick={handleExportPNG} disabled={!tree}>
         ↓ Export PNG
       </button>
+
+      <div className={styles.separator} />
+      <button className={styles.btn} onClick={onShowExamples}>
+        Examples?
+      </button>
+
     </div>
   );
 }
