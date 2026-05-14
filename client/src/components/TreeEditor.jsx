@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { findNode } from '../utils/treeUtils';
 import styles from './TreeEditor.module.css';
 
@@ -10,25 +9,14 @@ const TYPE_OPTIONS = [
 export default function TreeEditor({ tree, selectedNodeId, onAddChild, onDelete, onUpdate }) {
   const selectedNode = tree ? findNode(tree, selectedNodeId) : null;
 
-  const [type, setType] = useState('');
-  const [label, setLabel] = useState('');
-  const [word, setWord] = useState('');
+  const type = selectedNode?.type || '';
+  const label = selectedNode?.label || '';
+  const word = selectedNode?.word || '';
+  const triangle = !!selectedNode?.triangle;
 
-  useEffect(() => {
-    if (selectedNode) {
-      setType(selectedNode.type || '');
-      setLabel(selectedNode.label || '');
-      setWord(selectedNode.word || '');
-    }
-  }, [selectedNodeId, selectedNode?.type, selectedNode?.label, selectedNode?.word]);
-
-  function handleSave() {
+  function update(patch) {
     if (!selectedNodeId) return;
-    onUpdate(selectedNodeId, {
-      type,
-      label,
-      word: word.trim() || null
-    });
+    onUpdate(selectedNodeId, patch);
   }
 
   function handleDelete() {
@@ -37,6 +25,8 @@ export default function TreeEditor({ tree, selectedNodeId, onAddChild, onDelete,
       onDelete(selectedNodeId);
     }
   }
+
+  const isCustomType = type && !TYPE_OPTIONS.includes(type);
 
   return (
     <div className={styles.panel}>
@@ -53,22 +43,23 @@ export default function TreeEditor({ tree, selectedNodeId, onAddChild, onDelete,
             <label className={styles.label}>Type (label)</label>
             <select
               className={styles.input}
-              value={TYPE_OPTIONS.includes(type) ? type : 'Other'}
+              value={isCustomType ? 'Other' : (type || 'S')}
               onChange={e => {
                 const v = e.target.value;
-                if (v !== 'Other') setType(v);
+                if (v === 'Other') update({ type: '' });
+                else update({ type: v });
               }}
             >
               {TYPE_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
-            {(!TYPE_OPTIONS.includes(type) || type === 'Other') && (
+            {isCustomType || type === '' ? (
               <input
                 className={styles.input}
                 placeholder="Custom type"
                 value={type}
-                onChange={e => setType(e.target.value)}
+                onChange={e => update({ type: e.target.value })}
               />
-            )}
+            ) : null}
           </div>
 
           <div className={styles.field}>
@@ -76,7 +67,7 @@ export default function TreeEditor({ tree, selectedNodeId, onAddChild, onDelete,
             <input
               className={styles.input}
               value={label}
-              onChange={e => setLabel(e.target.value)}
+              onChange={e => update({ label: e.target.value })}
               placeholder="e.g. Noun Phrase"
             />
           </div>
@@ -86,15 +77,24 @@ export default function TreeEditor({ tree, selectedNodeId, onAddChild, onDelete,
             <input
               className={styles.input}
               value={word}
-              onChange={e => setWord(e.target.value)}
+              onChange={e => update({ word: e.target.value || null })}
               placeholder="e.g. ball"
             />
           </div>
 
+          <div className={styles.field}>
+            <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={triangle}
+                onChange={e => update({ triangle: e.target.checked })}
+                style={{ margin: 0 }}
+              />
+              Triangle leaf (compressed phrase)
+            </label>
+          </div>
+
           <div className={styles.actions}>
-            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleSave}>
-              Save
-            </button>
             <button
               className={`${styles.btn} ${styles.btnSecondary}`}
               onClick={() => onAddChild(selectedNodeId)}

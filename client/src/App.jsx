@@ -8,6 +8,8 @@ import ControlBar from './components/ControlBar';
 import ExamplesLibrary from './components/ExamplesLibrary';
 import NodePalette from './components/NodePalette';
 import AmbiguityPicker from './components/AmbiguityPicker';
+import FloatingMenu from './components/FloatingMenu';
+import { THEMES, getTheme } from './utils/themes';
 import styles from './App.module.css';
 
 export default function App() {
@@ -21,6 +23,14 @@ export default function App() {
   const { loading, error, aiParse, fetchExamples } = useAPICall();
   const [examples, setExamples] = useState([]);
   const [ambiguityData, setAmbiguityData] = useState(null);
+
+  // Tool state
+  const [activeTools, setActiveTools] = useState({
+    unlock: false, pen: false, theme: false, annotate: false,
+  });
+  const [themeIndex, setThemeIndex] = useState(0);
+  const [customPositions, setCustomPositions] = useState({});
+  const [penPaths, setPenPaths] = useState([]);
 
   useEffect(() => {
     fetchExamples().then(setExamples);
@@ -43,20 +53,59 @@ export default function App() {
       setAmbiguityData({ trees: result.trees, explanation: result.explanation });
     } else if (result.tree) {
       loadTree(result.tree);
+      setCustomPositions({});
+      setPenPaths([]);
     }
   }, [aiParse, loadTree]);
 
   function handleDropNode(parentId, payload) {
-    if (parentId === null) {
-      createRoot(payload);
-    } else {
-      addChild(parentId, payload);
-    }
+    if (parentId === null) createRoot(payload);
+    else addChild(parentId, payload);
   }
 
   function handleAmbiguitySelect(selectedTree) {
     loadTree(selectedTree);
+    setCustomPositions({});
+    setPenPaths([]);
     setAmbiguityData(null);
+  }
+
+  function handleToggleTool(toolId) {
+    if (toolId === 'theme') {
+      setThemeIndex(i => (i + 1) % THEMES.length);
+      return;
+    }
+    setActiveTools(prev => {
+      // pen and annotate are mutually exclusive
+      const next = { ...prev };
+      if (toolId === 'pen') {
+        next.pen = !prev.pen;
+        if (next.pen) next.annotate = false;
+      } else if (toolId === 'annotate') {
+        next.annotate = !prev.annotate;
+        if (next.annotate) next.pen = false;
+      } else {
+        next[toolId] = !prev[toolId];
+      }
+      return next;
+    });
+  }
+
+  function handlePositionChange(nodeId, pos) {
+    setCustomPositions(prev => ({ ...prev, [nodeId]: pos }));
+  }
+
+  function handleAnnotate(nodeId) {
+    const current = (function find(n) {
+      if (!n) return null;
+      if (n.id === nodeId) return n;
+      for (const c of n.children || []) { const f = find(c); if (f) return f; }
+      return null;
+    })(tree);
+    const existing = current?.annotation || '';
+    const text = window.prompt('Annotation for this node:', existing);
+    if (text === null) return;
+    updateNode(nodeId, { annotation: text.trim() || null });
   }
 
   return (
@@ -66,6 +115,9 @@ export default function App() {
           Tree<span className={styles.logoAccent}>Parse</span>
         </span>
         <span className={styles.subtitle}>Interactive Syntax Tree Visualizer</span>
+        <span style={{ marginLeft: 'auto', fontSize: '0.78rem', color: '#888' }}>
+          Theme: {THEMES[themeIndex].name}
+        </span>
       </header>
 
       <main className={styles.main}>
@@ -73,7 +125,7 @@ export default function App() {
           <InputPanel onAIParse={handleAIParse} loading={loading} error={error} />
           <ControlBar
             tree={tree}
-            onNewTree={newTree}
+            onNewTree={() => { newTree(); setCustomPositions({}); setPenPaths([]); }}
             onUndo={undo}
             onRedo={redo}
             canUndo={canUndo}
@@ -87,6 +139,16 @@ export default function App() {
             selectedNodeId={selectedNodeId}
             onNodeClick={setSelectedNodeId}
             onDropNode={handleDropNode}
+            unlocked={activeTools.unlock}
+            penMode={activeTools.pen}
+            annotateMode={activeTools.annotate}
+            theme={getTheme(THEMES[themeIndex].id)}
+            customPositions={customPositions}
+            onPositionChange={handlePositionChange}
+            penPaths={penPaths}
+            onPenPathsChange={setPenPaths}
+            onAnnotate={handleAnnotate}
+            floatingMenu={<FloatingMenu activeTools={activeTools} onToggle={handleToggleTool} />}
           />
         </div>
 
@@ -101,7 +163,7 @@ export default function App() {
           <NodePalette />
           <ExamplesLibrary
             examples={examples}
-            onLoadExample={loadTree}
+            onLoadExample={(t) => { loadTree(t); setCustomPositions({}); setPenPaths([]); }}
             onAIParse={handleAIParse}
           />
         </div>

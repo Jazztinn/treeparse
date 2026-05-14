@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import { layoutTree, NODE_WIDTH, NODE_HEIGHT } from '../utils/treeLayout';
 import styles from './TreeVisualizer.module.css';
 
-const PAD = 40;
+const PAD = 60;
 const DRAG_MIME = 'application/x-tree-node';
 
 function readDragPayload(e) {
@@ -11,52 +11,64 @@ function readDragPayload(e) {
   try { return JSON.parse(raw); } catch { return null; }
 }
 
-function renderEdges(node, positions) {
-  if (!node.children || node.children.length === 0) return null;
-  const from = positions[node.id];
-  return (
-    <>
-      {node.children.map(child => {
-        const to = positions[child.id];
-        return (
-          <line
-            key={`${node.id}-${child.id}`}
-            className={styles.edge}
-            x1={from.x + PAD}
-            y1={from.y + NODE_HEIGHT / 2 + PAD}
-            x2={to.x + PAD}
-            y2={to.y - NODE_HEIGHT / 2 + PAD}
-          />
-        );
-      })}
-      {node.children.map(child => renderEdges(child, positions))}
-    </>
-  );
+function getEffectivePos(node, autoPositions, customPositions) {
+  if (customPositions[node.id]) return customPositions[node.id];
+  return autoPositions[node.id];
 }
 
-function renderNodes(node, positions, selectedNodeId, dropTargetId, onNodeClick, onDropOnNode, setDropTargetId) {
-  const pos = positions[node.id];
-  const isLeaf = node.word !== null && node.word !== undefined && node.word !== '';
-  const isSelected = node.id === selectedNodeId;
-  const isDropTarget = node.id === dropTargetId;
+function collectEdges(node, autoPositions, customPositions, out = []) {
+  if (!node.children || node.children.length === 0) return out;
+  const from = getEffectivePos(node, autoPositions, customPositions);
+  for (const child of node.children) {
+    const to = getEffectivePos(child, autoPositions, customPositions);
+    if (!to || !from) continue;
+    const isTriangle = child.triangle && (!child.children || child.children.length === 0);
+    const x1 = from.x + PAD;
+    const y1 = from.y + NODE_HEIGHT / 2 + PAD;
+    const x2 = to.x + PAD;
+    const y2 = to.y - NODE_HEIGHT / 2 + PAD;
 
-  let circleClass = '';
-  if (isDropTarget) circleClass = styles.dropTarget;
-  else if (isLeaf) circleClass = isSelected ? styles.leafSelected : styles.leaf;
-  else if (isSelected) circleClass = styles.selected;
+    if (isTriangle) {
+      const triWidth = Math.max(NODE_WIDTH * 0.9, (child.word || '').length * 7 + 16);
+      const leftX = x2 - triWidth / 2;
+      const rightX = x2 + triWidth / 2;
+      out.push({
+        key: `${node.id}-${child.id}`,
+        type: 'triangle',
+        points: `${x1},${y1} ${leftX},${y2} ${rightX},${y2}`,
+      });
+    } else {
+      out.push({ key: `${node.id}-${child.id}`, type: 'line', x1, y1, x2, y2 });
+    }
+    collectEdges(child, autoPositions, customPositions, out);
+  }
+  return out;
+}
 
-  function onDragOver(e) {
+function flattenNodes(node, out = []) {
+  out.push(node);
+  (node.children || []).forEach(c => flattenNodes(c, out));
+  return out;
+}
+
+function NodeShape({
+  node, pos, isLeaf, isSelected, isDropTarget,
+  unlocked, annotateMode,
+  onClick, onDropOnNode, onDragMoveStart, onAnnotate,
+  setDropTargetId,
+}) {
+  function onSvgDragOver(e) {
     if (!e.dataTransfer.types.includes(DRAG_MIME)) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
     setDropTargetId(node.id);
   }
 
-  function onDragLeave() {
+  function onSvgDragLeave() {
     setDropTargetId(prev => (prev === node.id ? null : prev));
   }
 
-  function onDrop(e) {
+  function onSvgDrop(e) {
     const payload = readDragPayload(e);
     if (!payload) return;
     e.preventDefault();
@@ -65,56 +77,181 @@ function renderNodes(node, positions, selectedNodeId, dropTargetId, onNodeClick,
     onDropOnNode(node.id, payload);
   }
 
+  function handleMouseDown(e) {
+    if (annotateMode) {
+      e.stopPropagation();
+      onAnnotate(node.id);
+      return;
+    }
+    if (!unlocked) return;
+    e.stopPropagation();
+    e.preventDefault();
+    onDragMoveStart(node.id, e.clientX, e.clientY);
+  }
+
+  let boxClass = '';
+  if (isDropTarget) boxClass = styles.dropTarget;
+  else if (isLeaf) boxClass = isSelected ? styles.leafSelected : styles.leaf;
+  else if (isSelected) boxClass = styles.selected;
+
+  const isTriangle = node.triangle && isLeaf;
+
   return (
-    <>
-      <g
-        key={node.id}
-        className={styles.node}
-        transform={`translate(${pos.x - NODE_WIDTH / 2 + PAD}, ${pos.y - NODE_HEIGHT / 2 + PAD})`}
-        onClick={() => onNodeClick(node.id)}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-      >
+    <g
+      className={`${styles.node} ${unlocked ? styles.nodeDraggable : ''}`}
+      transform={`translate(${pos.x - NODE_WIDTH / 2 + PAD}, ${pos.y - NODE_HEIGHT / 2 + PAD})`}
+      onClick={() => { if (!annotateMode && !unlocked) onClick(node.id); }}
+      onMouseDown={handleMouseDown}
+      onDragOver={onSvgDragOver}
+      onDragLeave={onSvgDragLeave}
+      onDrop={onSvgDrop}
+    >
+      {!isTriangle && (
         <rect
-          className={`${styles.nodeCircle} ${circleClass}`}
+          className={`${styles.nodeBox} ${boxClass}`}
           width={NODE_WIDTH}
           height={NODE_HEIGHT}
           rx={6}
           ry={6}
         />
+      )}
+      <text
+        className={`${styles.nodeType} ${isLeaf && !isTriangle ? styles.nodeTypeLeaf : ''}`}
+        x={NODE_WIDTH / 2}
+        y={isLeaf && !isTriangle ? NODE_HEIGHT / 2 - 4 : NODE_HEIGHT / 2 + 5}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        style={isTriangle ? { fontStyle: 'italic', fill: '#1a1a1a' } : {}}
+      >
+        {isTriangle ? node.word : node.type}
+      </text>
+      {isLeaf && !isTriangle && (
         <text
-          className={styles.nodeType}
+          className={styles.nodeWord}
           x={NODE_WIDTH / 2}
-          y={isLeaf ? NODE_HEIGHT / 2 - 4 : NODE_HEIGHT / 2 + 5}
+          y={NODE_HEIGHT / 2 + 10}
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          {node.type}
+          {node.word}
         </text>
-        {isLeaf && (
-          <text
-            className={styles.nodeWord}
-            x={NODE_WIDTH / 2}
-            y={NODE_HEIGHT / 2 + 10}
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            {node.word}
-          </text>
-        )}
-      </g>
-      {(node.children || []).map(child =>
-        renderNodes(child, positions, selectedNodeId, dropTargetId, onNodeClick, onDropOnNode, setDropTargetId)
       )}
-    </>
+      {node.annotation && (
+        <text
+          className={styles.annotation}
+          x={NODE_WIDTH / 2}
+          y={-6}
+          textAnchor="middle"
+        >
+          {node.annotation}
+        </text>
+      )}
+    </g>
   );
 }
 
-export default function TreeVisualizer({ tree, selectedNodeId, onNodeClick, onDropNode }) {
-  const { positions, width, height } = useMemo(() => layoutTree(tree), [tree]);
+function pathToD(points) {
+  if (!points || points.length === 0) return '';
+  return 'M ' + points.map(p => `${p.x} ${p.y}`).join(' L ');
+}
+
+export default function TreeVisualizer({
+  tree, selectedNodeId, onNodeClick, onDropNode,
+  unlocked, penMode, annotateMode, theme,
+  customPositions, onPositionChange,
+  penPaths, onPenPathsChange,
+  onAnnotate,
+  floatingMenu,
+}) {
+  const { positions: autoPositions, width, height } = useMemo(() => layoutTree(tree), [tree]);
   const [dropTargetId, setDropTargetId] = useState(null);
   const [wrapperDropActive, setWrapperDropActive] = useState(false);
+  const [penDrafting, setPenDrafting] = useState(null);
+  const [overlaySize, setOverlaySize] = useState({ w: 0, h: 0 });
+
+  const wrapperRef = useRef(null);
+  const dragRef = useRef(null);
+  const penDrawingRef = useRef(null);
+
+  // Track wrapper size for the pen overlay
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const el = wrapperRef.current;
+    const update = () => setOverlaySize({ w: el.clientWidth, h: el.clientHeight });
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [tree]);
+
+  const themeVars = theme ? {
+    '--canvas-bg': theme.bg,
+    '--node-bg': theme.nodeBg,
+    '--node-stroke': theme.nodeStroke,
+    '--node-text': theme.nodeText,
+    '--leaf-bg': theme.leafBg,
+    '--leaf-stroke': theme.leafStroke,
+    '--edge-color': theme.edge,
+  } : {};
+
+  const handleNodeDragStart = useCallback((nodeId, clientX, clientY) => {
+    const startPos = customPositions[nodeId] || autoPositions[nodeId];
+    if (!startPos) return;
+    dragRef.current = {
+      nodeId,
+      startClientX: clientX,
+      startClientY: clientY,
+      startPos: { x: startPos.x, y: startPos.y },
+    };
+
+    function onMove(ev) {
+      if (!dragRef.current) return;
+      const dx = ev.clientX - dragRef.current.startClientX;
+      const dy = ev.clientY - dragRef.current.startClientY;
+      onPositionChange(dragRef.current.nodeId, {
+        x: dragRef.current.startPos.x + dx,
+        y: dragRef.current.startPos.y + dy,
+      });
+    }
+    function onUp() {
+      dragRef.current = null;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    }
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [autoPositions, customPositions, onPositionChange]);
+
+  function getOverlayPoint(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  }
+
+  function handlePenDown(e) {
+    if (!penMode) return;
+    const p = getOverlayPoint(e);
+    penDrawingRef.current = [p];
+    setPenDrafting([p]);
+  }
+
+  function handlePenMove(e) {
+    if (!penMode || !penDrawingRef.current) return;
+    const p = getOverlayPoint(e);
+    penDrawingRef.current.push(p);
+    setPenDrafting([...penDrawingRef.current]);
+  }
+
+  function handlePenUp() {
+    if (!penMode || !penDrawingRef.current) return;
+    if (penDrawingRef.current.length > 1) {
+      onPenPathsChange([...penPaths, penDrawingRef.current]);
+    }
+    penDrawingRef.current = null;
+    setPenDrafting(null);
+  }
 
   function handleWrapperDragOver(e) {
     if (!e.dataTransfer.types.includes(DRAG_MIME)) return;
@@ -135,43 +272,122 @@ export default function TreeVisualizer({ tree, selectedNodeId, onNodeClick, onDr
     if (!tree) onDropNode(null, payload);
   }
 
-  function handleDropOnNode(parentId, payload) {
-    onDropNode(parentId, payload);
-  }
+  let hintText = null;
+  if (penMode) hintText = '✏️ Pen Mode — drag to draw';
+  else if (unlocked) hintText = '🔓 Nodes Unlocked — drag to reposition';
+  else if (annotateMode) hintText = '💬 Annotate Mode — click a node';
+
+  const penOverlay = (
+    <svg
+      className={`${styles.penOverlay} ${penMode ? styles.penOverlayActive : ''}`}
+      width={overlaySize.w}
+      height={overlaySize.h}
+      onMouseDown={handlePenDown}
+      onMouseMove={handlePenMove}
+      onMouseUp={handlePenUp}
+      onMouseLeave={handlePenUp}
+    >
+      {penPaths.map((path, i) => (
+        <path key={i} className={styles.penPath} d={pathToD(path)} />
+      ))}
+      {penDrafting && (
+        <path className={styles.penPath} d={pathToD(penDrafting)} />
+      )}
+    </svg>
+  );
 
   if (!tree) {
     return (
       <div
+        ref={wrapperRef}
         className={`${styles.wrapper} ${wrapperDropActive ? styles.dropActive : ''}`}
+        style={themeVars}
         onDragOver={handleWrapperDragOver}
         onDragLeave={handleWrapperDragLeave}
         onDrop={handleWrapperDrop}
       >
-        <div className={styles.empty}>
-          {wrapperDropActive ? 'Drop to create root node' : 'Parse a sentence, drag a node here, or click New Tree to begin.'}
+        <div className={styles.scroll}>
+          <div className={styles.empty}>
+            {wrapperDropActive ? 'Drop to create root node' : 'Parse a sentence, drag a node here, or click New Tree to begin.'}
+          </div>
         </div>
+        {penOverlay}
+        {floatingMenu}
       </div>
     );
   }
 
-  const svgWidth = width + PAD * 2;
-  const svgHeight = height + PAD * 2;
+  const allNodes = flattenNodes(tree);
+  let maxX = width, maxY = height, minX = 0, minY = 0;
+  for (const n of allNodes) {
+    const p = getEffectivePos(n, autoPositions, customPositions);
+    if (!p) continue;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y > maxY) maxY = p.y;
+    if (p.x < minX) minX = p.x;
+    if (p.y < minY) minY = p.y;
+  }
+
+  const svgWidth = maxX + PAD * 2 + Math.abs(Math.min(minX, 0));
+  const svgHeight = maxY + PAD * 2 + Math.abs(Math.min(minY, 0));
 
   return (
     <div
+      ref={wrapperRef}
       className={styles.wrapper}
+      style={themeVars}
       onDragOver={handleWrapperDragOver}
       onDrop={handleWrapperDrop}
     >
-      <svg
-        className={styles.svg}
-        width={svgWidth}
-        height={svgHeight}
-        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-      >
-        {renderEdges(tree, positions)}
-        {renderNodes(tree, positions, selectedNodeId, dropTargetId, onNodeClick, handleDropOnNode, setDropTargetId)}
-      </svg>
+      {hintText && <div className={styles.toolHint}>{hintText}</div>}
+      {penMode && (
+        <button
+          className={styles.clearBtn}
+          onClick={() => onPenPathsChange([])}
+          disabled={penPaths.length === 0}
+        >
+          ✕ Clear Drawing
+        </button>
+      )}
+
+      <div className={styles.scroll}>
+        <svg
+          className={styles.svg}
+          width={svgWidth}
+          height={svgHeight}
+        >
+          {collectEdges(tree, autoPositions, customPositions).map(e =>
+            e.type === 'triangle'
+              ? <polygon key={e.key} className={styles.triangleEdge} points={e.points} />
+              : <line key={e.key} className={styles.edge} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
+          )}
+          {allNodes.map(n => {
+            const pos = getEffectivePos(n, autoPositions, customPositions);
+            if (!pos) return null;
+            const isLeaf = n.word !== null && n.word !== undefined && n.word !== '';
+            return (
+              <NodeShape
+                key={n.id}
+                node={n}
+                pos={pos}
+                isLeaf={isLeaf}
+                isSelected={n.id === selectedNodeId}
+                isDropTarget={n.id === dropTargetId}
+                unlocked={unlocked}
+                annotateMode={annotateMode}
+                onClick={onNodeClick}
+                onDropOnNode={onDropNode}
+                onDragMoveStart={handleNodeDragStart}
+                onAnnotate={onAnnotate}
+                setDropTargetId={setDropTargetId}
+              />
+            );
+          })}
+        </svg>
+      </div>
+
+      {penOverlay}
+      {floatingMenu}
     </div>
   );
 }

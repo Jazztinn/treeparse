@@ -16,7 +16,7 @@ export default function ControlBar({ tree, onNewTree, onUndo, onRedo, canUndo, c
 
   return (
     <div className={styles.bar}>
-      <button className={`${styles.btn} ${styles.btnNew}`} onClick={onNewTree}>
+      <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={onNewTree}>
         New Tree
       </button>
       <div className={styles.separator} />

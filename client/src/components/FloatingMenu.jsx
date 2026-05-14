@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styles from './FloatingMenu.module.css';
 
-const RADIUS = 100;
+const RADIUS = 90;
 
 const ICONS = {
   plus: (
