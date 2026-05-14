@@ -4,6 +4,8 @@ An interactive syntax tree visualizer for linguistics students, educators, and r
 
 Live demo: https://treeparse-ten.vercel.app
 
+Dedicated to my girlfriend, Ace.
+
 ## Features
 
 - Render phrase-structure trees as SVG with automatic hierarchical layout
