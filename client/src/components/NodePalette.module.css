@@ -1,0 +1,81 @@
+.panel {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin: 0;
+}
+
+.hint {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 0;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 5px 10px;
+  border-radius: 14px;
+  background: #f1f3f4;
+  border: 1px solid #d8d8d8;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: 'Georgia', serif;
+  cursor: grab;
+  color: #333;
+  user-select: none;
+  transition: background 0.12s, border-color 0.12s, transform 0.08s;
+}
+
+.chip:hover {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.chip:active {
+  cursor: grabbing;
+  transform: scale(0.96);
+}
+
+.chipLeaf {
+  background: #f0fdf4;
+  border-color: #c8e6cd;
+  color: #15803d;
+}
+
+.chipLeaf:hover {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #15803d;
+}

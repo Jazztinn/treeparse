@@ -1,13 +1,15 @@
 .wrapper {
   width: 100%;
   overflow: auto;
-  background: #fafafa;
+  background: var(--canvas-bg, #fafafa);
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  min-height: 300px;
+  min-height: 400px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  position: relative;
+  transition: background 0.25s;
 }
 
 .empty {
@@ -15,7 +17,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 300px;
+  min-height: 400px;
   color: #aaa;
   font-size: 0.95rem;
   font-style: italic;
@@ -26,47 +28,70 @@
 }
 
 .edge {
-  stroke: #999;
+  stroke: var(--edge-color, #999);
   stroke-width: 1.5;
   fill: none;
+}
+
+.triangleEdge {
+  fill: none;
+  stroke: var(--edge-color, #999);
+  stroke-width: 1.5;
 }
 
 .node {
   cursor: pointer;
 }
 
-.nodeCircle {
-  fill: #fff;
-  stroke: #555;
+.nodeDraggable {
+  cursor: grab;
+}
+
+.nodeDraggable:active {
+  cursor: grabbing;
+}
+
+.nodeBox {
+  fill: var(--node-bg, #fff);
+  stroke: var(--node-stroke, #555);
   stroke-width: 1.5;
-  rx: 6;
-  ry: 6;
   transition: fill 0.15s, stroke 0.15s;
 }
 
-.nodeCircle.selected {
+.nodeBox.leaf {
+  fill: var(--leaf-bg, #f0fdf4);
+  stroke: var(--leaf-stroke, #16a34a);
+}
+
+.nodeBox.selected {
   fill: #e8f0fe;
   stroke: #1a73e8;
-  stroke-width: 2;
+  stroke-width: 2.5;
 }
 
-.nodeCircle.leaf {
-  fill: #f0fdf4;
-  stroke: #16a34a;
-}
-
-.nodeCircle.leafSelected {
+.nodeBox.leafSelected {
   fill: #dcfce7;
   stroke: #15803d;
-  stroke-width: 2;
+  stroke-width: 2.5;
+}
+
+.nodeBox.dropTarget {
+  fill: #fef3c7;
+  stroke: #d97706;
+  stroke-width: 2.5;
+  stroke-dasharray: 4 3;
 }
 
 .nodeType {
   font-size: 13px;
   font-weight: 700;
-  fill: #1a1a1a;
+  fill: var(--node-text, #1a1a1a);
   pointer-events: none;
   font-family: 'Georgia', serif;
+}
+
+.nodeTypeLeaf {
+  fill: var(--leaf-text, #15803d);
 }
 
 .nodeWord {
@@ -74,4 +99,53 @@
   fill: #555;
   pointer-events: none;
   font-style: italic;
+}
+
+.annotation {
+  font-size: 10px;
+  fill: #b45309;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.penLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.penLayerActive {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.penPath {
+  fill: none;
+  stroke: #dc2626;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.toolHint {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.wrapper.dropActive {
+  background: #fffbeb;
+  border-color: #d97706;
+  border-style: dashed;
 }

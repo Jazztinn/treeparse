@@ -6,13 +6,14 @@ import TreeEditor from './components/TreeEditor';
 import InputPanel from './components/InputPanel';
 import ControlBar from './components/ControlBar';
 import ExamplesLibrary from './components/ExamplesLibrary';
+import NodePalette from './components/NodePalette';
 import AmbiguityPicker from './components/AmbiguityPicker';
 import styles from './App.module.css';
 
 export default function App() {
   const {
     tree, selectedNodeId, setSelectedNodeId,
-    addChild, deleteNode, updateNode,
+    addChild, createRoot, deleteNode, updateNode,
     undo, redo, canUndo, canRedo,
     loadTree, newTree,
   } = useTreeState();
@@ -44,6 +45,14 @@ export default function App() {
       loadTree(result.tree);
     }
   }, [aiParse, loadTree]);
+
+  function handleDropNode(parentId, payload) {
+    if (parentId === null) {
+      createRoot(payload);
+    } else {
+      addChild(parentId, payload);
+    }
+  }
 
   function handleAmbiguitySelect(selectedTree) {
     loadTree(selectedTree);
@@ -77,6 +86,7 @@ export default function App() {
             tree={tree}
             selectedNodeId={selectedNodeId}
             onNodeClick={setSelectedNodeId}
+            onDropNode={handleDropNode}
           />
         </div>
 
@@ -88,6 +98,7 @@ export default function App() {
             onDelete={deleteNode}
             onUpdate={updateNode}
           />
+          <NodePalette />
           <ExamplesLibrary
             examples={examples}
             onLoadExample={loadTree}

@@ -19,14 +19,32 @@ export function useTreeState() {
     setTree(newTree);
   }, [pushHistory]);
 
-  const addChild = useCallback((parentId) => {
+  const addChild = useCallback((parentId, nodeData) => {
     setTree(prev => {
-      const newNode = { id: generateId(), type: 'N', label: 'Node', word: null, children: [] };
+      const newNode = {
+        id: generateId(),
+        type: nodeData?.type || 'N',
+        label: nodeData?.label || 'Node',
+        word: nodeData?.word || null,
+        children: [],
+      };
       const next = addChildNode(prev, parentId, newNode);
       pushHistory(prev);
       return next;
     });
   }, [pushHistory]);
+
+  const createRoot = useCallback((nodeData) => {
+    pushHistory(tree);
+    setTree({
+      id: generateId(),
+      type: nodeData?.type || 'S',
+      label: nodeData?.label || 'Sentence',
+      word: nodeData?.word || null,
+      children: [],
+    });
+    setSelectedNodeId(null);
+  }, [tree, pushHistory]);
 
   const deleteSelectedNode = useCallback((nodeId) => {
     setTree(prev => {
@@ -87,6 +105,7 @@ export function useTreeState() {
     tree, setTree,
     selectedNodeId, setSelectedNodeId,
     addChild,
+    createRoot,
     deleteNode: deleteSelectedNode,
     updateNode: updateSelectedNode,
     undo, redo,
