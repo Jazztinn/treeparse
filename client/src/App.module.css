@@ -151,9 +151,6 @@
     height: 440px;
     opacity: 0.18;
   }
-  .paletteToggle {
-    display: none;
-  }
 }
 
 .paletteContainer {
@@ -238,4 +235,10 @@
   display: flex;
   flex-direction: column;
   position: relative;
+}
+
+@media (max-width: 560px) {
+  .paletteToggle {
+    display: none !important;
+  }
 }
