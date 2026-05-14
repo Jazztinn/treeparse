@@ -101,11 +101,21 @@ export function useTreeState() {
     setSelectedNodeId(null);
   }, [tree, pushHistory]);
 
+  // Apply an arbitrary atomic transformation. Receives the previous tree and a
+  // small toolbox of helpers; must return the new tree.
+  const transformTree = useCallback((transform) => {
+    setTree(prev => {
+      pushHistory(prev);
+      return transform(prev, { generateId });
+    });
+  }, [pushHistory]);
+
   return {
     tree, setTree,
     selectedNodeId, setSelectedNodeId,
     addChild,
     createRoot,
+    transformTree,
     deleteNode: deleteSelectedNode,
     updateNode: updateSelectedNode,
     undo, redo,

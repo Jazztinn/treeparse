@@ -55,7 +55,7 @@ function NodeShape({
   node, pos, isLeaf, isSelected, isDropTarget,
   unlocked, annotateMode,
   onClick, onDropOnNode, onDragMoveStart, onAnnotate,
-  setDropTargetId,
+  setDropTargetId, setHoverNode,
 }) {
   function onSvgDragOver(e) {
     if (!e.dataTransfer.types.includes(DRAG_MIME)) return;
@@ -96,12 +96,29 @@ function NodeShape({
 
   const isTriangle = node.triangle && isLeaf;
 
+  function handleEnter(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setHoverNode({
+      id: node.id,
+      label: node.label || node.type,
+      type: node.type,
+      word: node.word,
+      x: rect.left + rect.width / 2,
+      y: rect.top,
+    });
+  }
+  function handleLeave() {
+    setHoverNode(prev => (prev && prev.id === node.id ? null : prev));
+  }
+
   return (
     <g
       className={`${styles.node} ${unlocked ? styles.nodeDraggable : ''}`}
       transform={`translate(${pos.x - NODE_WIDTH / 2 + PAD}, ${pos.y - NODE_HEIGHT / 2 + PAD})`}
       onClick={() => { if (!annotateMode && !unlocked) onClick(node.id); }}
       onMouseDown={handleMouseDown}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
       onDragOver={onSvgDragOver}
       onDragLeave={onSvgDragLeave}
       onDrop={onSvgDrop}
@@ -155,6 +172,20 @@ function pathToD(points) {
   return 'M ' + points.map(p => `${p.x} ${p.y}`).join(' L ');
 }
 
+function NodeTooltip({ data, wrapperRef }) {
+  const rect = wrapperRef.current?.getBoundingClientRect();
+  if (!rect) return null;
+  const left = data.x - rect.left;
+  const top = data.y - rect.top - 8;
+  return (
+    <div className={styles.nodeTooltip} style={{ left, top, transform: 'translate(-50%, -100%)' }}>
+      <div className={styles.tooltipType}>{data.type}</div>
+      <div className={styles.tooltipLabel}>{data.label}</div>
+      {data.word && <div className={styles.tooltipWord}>“{data.word}”</div>}
+    </div>
+  );
+}
+
 export default function TreeVisualizer({
   tree, selectedNodeId, onNodeClick, onDropNode,
   unlocked, penMode, annotateMode, theme,
@@ -168,6 +199,7 @@ export default function TreeVisualizer({
   const [wrapperDropActive, setWrapperDropActive] = useState(false);
   const [penDrafting, setPenDrafting] = useState(null);
   const [overlaySize, setOverlaySize] = useState({ w: 0, h: 0 });
+  const [hoverNode, setHoverNode] = useState(null);
 
   const wrapperRef = useRef(null);
   const dragRef = useRef(null);
@@ -391,11 +423,16 @@ export default function TreeVisualizer({
                 onDragMoveStart={handleNodeDragStart}
                 onAnnotate={onAnnotate}
                 setDropTargetId={setDropTargetId}
+                setHoverNode={setHoverNode}
               />
             );
           })}
         </svg>
       </div>
+
+      {hoverNode && (
+        <NodeTooltip data={hoverNode} wrapperRef={wrapperRef} />
+      )}
 
       {penOverlay}
       {floatingMenu}

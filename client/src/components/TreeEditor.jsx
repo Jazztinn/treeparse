@@ -2,8 +2,11 @@ import { findNode } from '../utils/treeUtils';
 import styles from './TreeEditor.module.css';
 
 const TYPE_OPTIONS = [
-  'S','NP','VP','PP','AP','AdvP','CP','TP','DP',
-  'N','V','Det','Adj','Adv','P','PRP','Conj','Aux','Other'
+  "S","S'","Q","NP","VP","PP","AP","AdvP","CP","TP","DP",
+  "SUBJ","PRED","AUX","SM",
+  "Perf","Prog","Pass",
+  "N","V","Det","Adj","Adv","P","PRP","Conj","Aux","Comp","T","Neg",
+  "Other"
 ];
 
 export default function TreeEditor({ tree, selectedNodeId, onAddChild, onDelete, onUpdate }) {

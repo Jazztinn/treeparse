@@ -10,12 +10,14 @@ import NodePalette from './components/NodePalette';
 import AmbiguityPicker from './components/AmbiguityPicker';
 import FloatingMenu from './components/FloatingMenu';
 import { THEMES, getTheme } from './utils/themes';
+import { findMainVerb } from './utils/treeUtils';
+import { toPastParticiple, toIngForm } from './utils/verbForms';
 import styles from './App.module.css';
 
 export default function App() {
   const {
     tree, selectedNodeId, setSelectedNodeId,
-    addChild, createRoot, deleteNode, updateNode,
+    addChild, createRoot, transformTree, deleteNode, updateNode,
     undo, redo, canUndo, canRedo,
     loadTree, newTree,
   } = useTreeState();
@@ -60,8 +62,56 @@ export default function App() {
   }, [aiParse, loadTree]);
 
   function handleDropNode(parentId, payload) {
-    if (parentId === null) createRoot(payload);
-    else addChild(parentId, payload);
+    if (parentId === null) {
+      createRoot(payload);
+      return;
+    }
+
+    // Aspect/voice chips: atomically (1) add the aspect node with its auxiliary
+    // leaf, (2) conjugate the related main verb in the same tree pass.
+    if (payload.special) {
+      const auxWord = payload.special === 'perf' ? 'have' : 'be';
+      const conjugate = payload.special === 'prog' ? toIngForm : toPastParticiple;
+
+      transformTree((prev, { generateId }) => {
+        const aspectLeafId = generateId();
+        const aspectNodeId = generateId();
+        const aspectNode = {
+          id: aspectNodeId,
+          type: payload.type,
+          label: payload.label,
+          word: null,
+          children: [
+            { id: aspectLeafId, type: 'Aux', label: 'Auxiliary', word: auxWord, children: [] },
+          ],
+        };
+
+        // Walk the tree once: add aspectNode under parentId, then conjugate the
+        // main V relative to parentId.
+        function walk(node) {
+          if (!node) return node;
+          let children = node.children || [];
+          if (node.id === parentId) {
+            children = [...children, aspectNode];
+          }
+          return { ...node, children: children.map(walk) };
+        }
+        const withAspect = walk(prev);
+        const mainV = findMainVerb(withAspect, parentId);
+        if (!mainV || !mainV.word) return withAspect;
+        function conjugateWalk(node) {
+          if (!node) return node;
+          if (node.id === mainV.id) {
+            return { ...node, word: conjugate(node.word) };
+          }
+          return { ...node, children: (node.children || []).map(conjugateWalk) };
+        }
+        return conjugateWalk(withAspect);
+      });
+      return;
+    }
+
+    addChild(parentId, payload);
   }
 
   function handleAmbiguitySelect(selectedTree) {
