@@ -331,32 +331,34 @@ export default function TreeVisualizer({
 
   if (!tree) {
     return (
-      <div
-        ref={wrapperRef}
-        className={`${styles.wrapper} ${wrapperDropActive ? styles.dropActive : ''}`}
-        style={themeVars}
-        onDragOver={handleWrapperDragOver}
-        onDragLeave={handleWrapperDragLeave}
-        onDrop={handleWrapperDrop}
-      >
-        {hintText && <div className={styles.toolHint}>{hintText}</div>}
-        {penMode && (
-          <button
-            className={styles.clearBtn}
-            onClick={() => onPenPathsChange([])}
-            disabled={penPaths.length === 0}
-          >
-            ✕ Clear Drawing
-          </button>
-        )}
-        <div className={styles.scroll}>
-          <div className={styles.empty}>
-            {wrapperDropActive ? 'Drop to create root node' : 'Parse a sentence, drag a node here, or click New Tree to begin.'}
+      <>
+        <div
+          ref={wrapperRef}
+          className={`${styles.wrapper} ${wrapperDropActive ? styles.dropActive : ''}`}
+          style={themeVars}
+          onDragOver={handleWrapperDragOver}
+          onDragLeave={handleWrapperDragLeave}
+          onDrop={handleWrapperDrop}
+        >
+          {hintText && <div className={styles.toolHint}>{hintText}</div>}
+          {penMode && (
+            <button
+              className={styles.clearBtn}
+              onClick={() => onPenPathsChange([])}
+              disabled={penPaths.length === 0}
+            >
+              ✕ Clear Drawing
+            </button>
+          )}
+          <div className={styles.scroll}>
+            <div className={styles.empty}>
+              {wrapperDropActive ? 'Drop to create root node' : 'Parse a sentence, drag a node here, or click New Tree to begin.'}
+            </div>
           </div>
+          {penOverlay}
+          {floatingMenu}
         </div>
-        {penOverlay}
-        {floatingMenu}
-      </div>
+      </>
     );
   }
 
@@ -375,76 +377,78 @@ export default function TreeVisualizer({
   const svgHeight = maxY + PAD * 2 + Math.abs(Math.min(minY, 0));
 
   return (
-    <div
-      ref={wrapperRef}
-      className={styles.wrapper}
-      style={themeVars}
-      onDragOver={handleWrapperDragOver}
-      onDrop={handleWrapperDrop}
-    >
-      {hintText && <div className={styles.toolHint}>{hintText}</div>}
-      {penMode && (
-        <button
-          className={styles.clearBtn}
-          onClick={() => onPenPathsChange([])}
-          disabled={penPaths.length === 0}
-        >
-          ✕ Clear Drawing
-        </button>
-      )}
+    <>
+      <div
+        ref={wrapperRef}
+        className={styles.wrapper}
+        style={themeVars}
+        onDragOver={handleWrapperDragOver}
+        onDrop={handleWrapperDrop}
+      >
+        {hintText && <div className={styles.toolHint}>{hintText}</div>}
+        {penMode && (
+          <button
+            className={styles.clearBtn}
+            onClick={() => onPenPathsChange([])}
+            disabled={penPaths.length === 0}
+          >
+            ✕ Clear Drawing
+          </button>
+        )}
+
+        <div className={styles.scroll}>
+          <svg
+            id="tree-svg"
+            className={styles.svg}
+            width={svgWidth * scale}
+            height={svgHeight * scale}
+          >
+            <g transform={`scale(${scale})`}>
+              {collectEdges(tree, autoPositions, customPositions).map(e =>
+                e.type === 'triangle'
+                  ? <polygon key={e.key} className={styles.triangleEdge} points={e.points} />
+                  : <line key={e.key} className={styles.edge} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
+              )}
+              {allNodes.map(n => {
+                const pos = getEffectivePos(n, autoPositions, customPositions);
+                if (!pos) return null;
+                const isLeaf = n.word !== null && n.word !== undefined && n.word !== '';
+                return (
+                  <NodeShape
+                    key={n.id}
+                    node={n}
+                    pos={pos}
+                    isLeaf={isLeaf}
+                    isSelected={n.id === selectedNodeId}
+                    isDropTarget={n.id === dropTargetId}
+                    unlocked={unlocked}
+                    annotateMode={annotateMode}
+                    onClick={onNodeClick}
+                    onDropOnNode={onDropNode}
+                    onDragMoveStart={handleNodeDragStart}
+                    onAnnotate={onAnnotate}
+                    setDropTargetId={setDropTargetId}
+                    setHoverNode={setHoverNode}
+                  />
+                );
+              })}
+            </g>
+          </svg>
+        </div>
+
+        {hoverNode && (
+          <NodeTooltip data={hoverNode} wrapperRef={wrapperRef} />
+        )}
+
+        {penOverlay}
+        {floatingMenu}
+      </div>
 
       <div className={styles.zoomControls}>
         <button className={styles.zoomBtn} onClick={() => setScale(s => Math.max(0.2, s - 0.1))} title="Zoom Out">−</button>
         <button className={styles.zoomBtn} onClick={() => setScale(1)} title="Reset Zoom" style={{ fontSize: '11px', width: 'auto', padding: '0 8px' }}>{(scale * 100).toFixed(0)}%</button>
         <button className={styles.zoomBtn} onClick={() => setScale(s => Math.min(3, s + 0.1))} title="Zoom In">+</button>
       </div>
-
-      <div className={styles.scroll}>
-        <svg
-          id="tree-svg"
-          className={styles.svg}
-          width={svgWidth * scale}
-          height={svgHeight * scale}
-        >
-          <g transform={`scale(${scale})`}>
-            {collectEdges(tree, autoPositions, customPositions).map(e =>
-              e.type === 'triangle'
-                ? <polygon key={e.key} className={styles.triangleEdge} points={e.points} />
-                : <line key={e.key} className={styles.edge} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
-            )}
-            {allNodes.map(n => {
-              const pos = getEffectivePos(n, autoPositions, customPositions);
-              if (!pos) return null;
-              const isLeaf = n.word !== null && n.word !== undefined && n.word !== '';
-              return (
-                <NodeShape
-                  key={n.id}
-                  node={n}
-                  pos={pos}
-                  isLeaf={isLeaf}
-                  isSelected={n.id === selectedNodeId}
-                  isDropTarget={n.id === dropTargetId}
-                  unlocked={unlocked}
-                  annotateMode={annotateMode}
-                  onClick={onNodeClick}
-                  onDropOnNode={onDropNode}
-                  onDragMoveStart={handleNodeDragStart}
-                  onAnnotate={onAnnotate}
-                  setDropTargetId={setDropTargetId}
-                  setHoverNode={setHoverNode}
-                />
-              );
-            })}
-          </g>
-        </svg>
-      </div>
-
-      {hoverNode && (
-        <NodeTooltip data={hoverNode} wrapperRef={wrapperRef} />
-      )}
-
-      {penOverlay}
-      {floatingMenu}
-    </div>
+    </>
   );
 }
