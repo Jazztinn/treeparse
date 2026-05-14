@@ -36,13 +36,13 @@
 }
 
 .glassBtnPrimary {
-  background: rgba(26, 115, 232, 0.85);
+  background: rgba(249, 115, 22, 0.85);
   color: #fff;
   border-color: rgba(255, 255, 255, 0.35);
 }
 
 .glassBtnPrimary:hover:not(:disabled) {
-  background: rgba(26, 115, 232, 0.95);
+  background: rgba(249, 115, 22, 0.95);
 }
 
 .glassBtnDanger {

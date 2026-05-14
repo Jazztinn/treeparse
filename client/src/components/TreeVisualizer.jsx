@@ -273,9 +273,9 @@ export default function TreeVisualizer({
   }
 
   let hintText = null;
-  if (penMode) hintText = '✏️ Pen Mode — drag to draw';
-  else if (unlocked) hintText = '🔓 Nodes Unlocked — drag to reposition';
-  else if (annotateMode) hintText = '💬 Annotate Mode — click a node';
+  if (penMode) hintText = 'Pen Mode — draw!';
+  else if (unlocked) hintText = 'Nodes Unlocked — drag to position nodes.';
+  else if (annotateMode) hintText = 'Annotate Mode — click a node';
 
   const penOverlay = (
     <svg

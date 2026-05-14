@@ -42,7 +42,7 @@
 }
 
 .btnPrimary {
-  background: rgba(26, 115, 232, 0.7);
+  background: rgba(249, 115, 22, 0.7);
   color: #fff;
   box-shadow:
     inset 1px 1px 2px rgba(255, 255, 255, 0.55),
@@ -50,7 +50,7 @@
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background: rgba(26, 115, 232, 0.85);
+  background: rgba(249, 115, 22, 0.85);
 }
 
 .separator {
