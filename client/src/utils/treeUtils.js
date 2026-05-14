@@ -26,7 +26,8 @@ export function addChildNode(tree, parentId, newNode) {
 }
 
 export function deleteNode(tree, targetId) {
-  if (!tree) return tree;
+  if (!tree) return null;
+  if (tree.id === targetId) return null;
   return {
     ...tree,
     children: (tree.children || [])
