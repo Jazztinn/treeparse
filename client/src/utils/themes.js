@@ -2,7 +2,7 @@ export const THEMES = [
   {
     id: 'default',
     name: 'Default',
-    bg: '#fafafa',
+    bg: 'rgba(250, 250, 250, 0.35)',
     nodeBg: '#ffffff',
     nodeStroke: '#555555',
     nodeText: '#1a1a1a',

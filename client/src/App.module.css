@@ -10,17 +10,18 @@
 .app::before {
   content: '';
   position: fixed;
-  left: -80px;
+  right: -80px;
   bottom: -120px;
   width: 620px;
   height: 780px;
   background-image: url('/sunflower.png');
   background-repeat: no-repeat;
-  background-position: bottom left;
+  background-position: bottom right;
   background-size: contain;
   opacity: 0.28;
   pointer-events: none;
   z-index: 0;
+  transform: scaleX(-1);
   filter: saturate(0.95);
 }
 
